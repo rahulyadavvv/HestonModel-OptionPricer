@@ -112,8 +112,7 @@ int main(int argc, char* argv[]) {
     delete[] p_X;
 }
 
-/*  Compute approximate value of X at next step. The equation used is the 
-    explicit equation for X^ given in reference [12], page 31, equation (89)  */  
+/*  Compute approximate value of X at next step */  
 void ComputeWeakEulerIteration(double* p_newX, double* p_oldX, double* p_vol,
 double* p_rv1, double interestRate, double stepLength)
 {
@@ -121,8 +120,7 @@ double* p_rv1, double interestRate, double stepLength)
     sqrt(stepLength*(*p_vol))*(*p_oldX)*(*p_rv1);
 }
 
-/*  Compute approximate value of Volatility at next step. Implicit equation is
-    used for V^ given in reference [12], page 31, equation (89)  */   
+/*  Compute approximate value of Volatility at next step. */   
 void ComputeNewVol(double* p_vol, double* p_rv1, double* p_rv2, 
 double stepLength, double kappa, double theta, double sigma, double rho)
 {
