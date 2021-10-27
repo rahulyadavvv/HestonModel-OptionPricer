@@ -23,7 +23,7 @@ void ComputeError(int noData, double* p_data, double* p_mean, double* p_error);
 
 int main(int argc, char* argv[]) {
 
-    //  set intial values and coefficients, using values from ref. [12], page 31
+    //  set intial values and coefficients
     const int noApproximations = 10000000; //  M
     const double startT = 0.0;  //  t
     const double endT = 1.0;    //  T
