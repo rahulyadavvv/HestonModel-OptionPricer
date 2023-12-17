@@ -8,5 +8,5 @@ To build, just use `cmake`.
 
 The pricer is run with the first argument as the number of simulations, for instance:
 ```shell
-Pricer 1000
+./Pricer 1000
 ```
