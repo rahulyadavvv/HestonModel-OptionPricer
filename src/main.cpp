@@ -26,7 +26,12 @@ int main(int argc, char* argv[]) {
     int n_sims;
     if (argc >= 2) {
         std::istringstream iss(argv[1]);
-	if (iss >> n_sims) { } else { 
+	if (iss >> n_sims) {
+	} else { 
+	    std::cout << "invalid argument";
+	    return 1;
+	}
+	if (n_sims < 1) {
 	    std::cout << "invalid argument";
 	    return 1;
 	}
