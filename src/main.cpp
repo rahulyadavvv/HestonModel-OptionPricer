@@ -6,6 +6,7 @@
 #include <cmath>
 #include <cassert>
 #include <random>
+#include <sstream>
 
 void ComputeWeakEulerIteration(double* p_newX, double* p_oldX, double* p_vol,
 double* p_rv1, double interestRate, double stepLength);
@@ -22,9 +23,19 @@ double EuropeanCallPayoff(double strikePrice, double stockPrice);
 void ComputeError(int noData, double* p_data, double* p_mean, double* p_error);
 
 int main(int argc, char* argv[]) {
-
+    int n_sims;
+    if (argc >= 2) {
+        std::istringstream iss(argv[1]);
+	if (iss >> n_sims) { } else { 
+	    std::cout << "invalid argument";
+	    return 1;
+	}
+    } else { 
+        std::cout << "require number of simulations as argument";
+	return 1;
+    }
     //  set intial values and coefficients
-    const int noApproximations = 10000000; //  M
+    const int noApproximations = n_sims; //  M
     const double startT = 0.0;  //  t
     const double endT = 1.0;    //  T
     const double stepLength = 0.0001;  //  h
