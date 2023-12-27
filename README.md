@@ -1,10 +1,10 @@
 # Heston model pricer
 
-# Build
+## Build
 
 To build, just use `cmake`.
 
-# Usage
+## Usage
 
 The pricer is run with the first argument as the number of simulations, for instance:
 ```shell
