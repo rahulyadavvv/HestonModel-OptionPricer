@@ -1,15 +1,14 @@
 /*  option pricing using the Heston Model.  */
 
-#include <optional>
-#include <stdexcept>
 #include <string>
+#include <vector>
 #define _USE_MATH_DEFINES
 
+#include "argparse.h"
 #include "payoffs.hpp"
 #include <cassert>
 #include <cmath>
 #include <iostream>
-#include <optional>
 #include <random>
 
 void ComputeWeakEulerIteration(double *p_newX, double *p_oldX, double *p_vol,
@@ -26,48 +25,37 @@ void GenerateNewRvs(double *p_rv1, double *p_rv2,
 
 void ComputeError(int noData, double *p_data, double *p_mean, double *p_error);
 
-std::optional<int> get_num_simulations(std::string input) {
-  try {
-    return std::stoi(input);
-  } catch (std::invalid_argument) {
-    std::cout << "invalid argument!" << std::endl;
-    return {};
-  } catch (std::out_of_range) {
-    std::cout << "out of range!" << std::endl;
-    return {};
-  }
-}
-
 int main(int argc, char *argv[]) {
-  // ensure user provided number of simulations
-  if (argc < 2) {
-    std::cout << "require number of simulations as argument";
-    return 1;
-  }
+  std::vector<std::string> flags = {
+      "-t",  // start time
+      "-T",  // end time
+      "-N",  // number of steps
+      "-M",  // number of simulations
+      "-Xt", // intial price at time t
+      "-Vt", // initial vol at time t
+      "-K",  // strike price
+      "-r",  // rate
+      "--kappa", "--theta", "--sigma", "--rho",
+  };
+
+  argmap parsed = argparse(argc, argv, flags);
 
   //  set intial values and coefficients
-  int num_simulations;
-  if (auto opt_num = get_num_simulations(argv[1])) {
-    num_simulations = opt_num.value();
-    if (num_simulations < 1) {
-      std::cout << "must have positive number of simulations!" << std::endl;
-      return 1;
-    }
-  } else {
-    return 1;
-  }
-  const double start_time = 0.0;
-  const double end_time = 1.0;
-  const double step_length = 0.0001;
-  const int num_steps = (int)((end_time - start_time) / step_length);
-  const double initial_price = 100.0;
-  const double initial_vol = 0.04;
-  const double rate = 0.05;
-  const double kappa = 1.2;
-  const double theta = 0.04;
-  const double sigma = 0.3;
-  const double rho = -0.5;
-  const double strike_price = 100.0;
+  const double start_time = std::stod(parsed["-t"].front());
+  const double end_time = std::stod(parsed["-T"].front());
+  const int num_steps = std::stoi(parsed["-N"].front());
+  const int num_simulations = std::stoi(parsed["-M"].front());
+  const double initial_price = std::stod(parsed["-Xt"].front());
+  const double initial_vol = std::stod(parsed["-Vt"].front());
+  const double strike_price = std::stod(parsed["-K"].front());
+  const double rate = std::stod(parsed["-r"].front());
+  const double kappa = std::stod(parsed["--kappa"].front());
+  const double theta = std::stod(parsed["--theta"].front());
+  const double sigma = std::stod(parsed["--sigma"].front());
+  const double rho = std::stod(parsed["--rho"].front());
+
+  // calculate step length from N
+  const double step_length = (end_time - start_time) / (double)num_steps;
 
   //  allocate memory for pointers
   double *p_oldX = new double;
