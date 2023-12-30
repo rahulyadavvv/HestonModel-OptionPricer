@@ -1,5 +1,7 @@
 /*  option pricing using the Heston Model.  */
 
+#include <optional>
+#include <stdexcept>
 #include <string>
 #include <vector>
 #define _USE_MATH_DEFINES
@@ -25,6 +27,17 @@ void GenerateNewRvs(double *p_rv1, double *p_rv2,
 
 void ComputeError(int noData, double *p_data, double *p_mean, double *p_error);
 
+std::string get_arg(argmap parsed, std::string flag) {
+  return parsed[flag].has_value()
+             ? (!parsed[flag]->empty()
+                    ? (parsed[flag]->size() == 1
+                           ? parsed[flag]->front()
+                           : throw std::runtime_error(
+                                 "too many arguments for " + flag))
+                    : throw std::runtime_error("missing argument for " + flag))
+             : throw std::runtime_error("missing " + flag);
+}
+
 int main(int argc, char *argv[]) {
   std::vector<std::string> flags = {
       "-t",  // start time
@@ -41,18 +54,18 @@ int main(int argc, char *argv[]) {
   argmap parsed = argparse(argc, argv, flags);
 
   //  set intial values and coefficients
-  const double start_time = std::stod(parsed["-t"].front());
-  const double end_time = std::stod(parsed["-T"].front());
-  const int num_steps = std::stoi(parsed["-N"].front());
-  const int num_simulations = std::stoi(parsed["-M"].front());
-  const double initial_price = std::stod(parsed["-Xt"].front());
-  const double initial_vol = std::stod(parsed["-Vt"].front());
-  const double strike_price = std::stod(parsed["-K"].front());
-  const double rate = std::stod(parsed["-r"].front());
-  const double kappa = std::stod(parsed["--kappa"].front());
-  const double theta = std::stod(parsed["--theta"].front());
-  const double sigma = std::stod(parsed["--sigma"].front());
-  const double rho = std::stod(parsed["--rho"].front());
+  const double start_time = std::stod(get_arg(parsed, "-t"));
+  const double end_time = std::stod(get_arg(parsed, "-T"));
+  const int num_steps = std::stoi(get_arg(parsed, "-N"));
+  const int num_simulations = std::stoi(get_arg(parsed, "-M"));
+  const double initial_price = std::stod(get_arg(parsed, "-Xt"));
+  const double initial_vol = std::stod(get_arg(parsed, "-Vt"));
+  const double strike_price = std::stod(get_arg(parsed, "-K"));
+  const double rate = std::stod(get_arg(parsed, "-r"));
+  const double kappa = std::stod(get_arg(parsed, "--kappa"));
+  const double theta = std::stod(get_arg(parsed, "--theta"));
+  const double sigma = std::stod(get_arg(parsed, "--sigma"));
+  const double rho = std::stod(get_arg(parsed, "--rho"));
 
   // calculate step length from N
   const double step_length = (end_time - start_time) / (double)num_steps;

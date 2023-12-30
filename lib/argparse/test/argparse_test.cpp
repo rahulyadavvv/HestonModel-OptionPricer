@@ -1,21 +1,35 @@
+/**
+ * @file
+ * @brief Tests related to `argparse` implementation.
+ */
+
 #include "argparse.h"
+#include <exception>
 #include <gtest/gtest.h>
+#include <optional>
 #include <string>
 #include <vector>
+
+using vecs = std::vector<std::string>;
+using optvecs = std::optional<vecs>;
 
 /**
  * @brief Basic usage case.
  */
 TEST(ArgparseTest, BasicCase) {
-  std::vector<std::string> flags = {"--target", "--destination", "--overwrite"};
+  char pow_fn[] = "pow";
+  char base_flag[] = "--base";
+  char base_input[] = "3";
+  char exp_flag[] = "--exp";
+  char exp_input[] = "2";
+  std::vector<std::string> flags{base_flag, exp_flag};
   int argc = 5;
-  char *argv[] = {"move_file", "--target", "./public/secret.txt",
-                  "--destination", "./private/secret.txt"};
+  char *argv[]{pow_fn, base_flag, base_input, exp_flag, exp_input};
+
   argmap parsed = argparse(argc, argv, flags);
   argmap expected{
-      {"--target", {"./public/secret.txt"}},
-      {"--destination", {"./private/secret.txt"}},
-      {"--overwrite", {}},
+      {base_flag, optvecs{vecs{base_input}}},
+      {exp_flag, optvecs{vecs{exp_input}}},
   };
   EXPECT_EQ(parsed, expected);
 }
@@ -24,22 +38,78 @@ TEST(ArgparseTest, BasicCase) {
  * @brief When there is whitespace in the argument vector.
  */
 TEST(ArgparseTest, WhitespaceCase) {
-  std::vector<std::string> flags = {"--base", "--exponent"};
-  int argc = 8;
-  char *argv[] = {"pow", "", "", "--base", "3", "", "--exponent", "2"};
+  char ws[] = "";
+  char pow_fn[] = "pow";
+  char base_flag[] = "--base";
+  char base_input[] = "3";
+  char exp_flag[] = "--exp";
+  char exp_input[] = "2";
+  std::vector<std::string> flags{base_flag, exp_flag};
+  int argc = 11;
+  char *argv[]{pow_fn, ws,       ws, base_flag, ws, base_input,
+               ws,     exp_flag, ws, exp_input, ws};
+
   argmap parsed = argparse(argc, argv, flags);
-  argmap expected{{"--base", {"3"}}, {"--exponent", {"2"}}};
+  argmap expected{
+      {base_flag, optvecs{vecs{base_input}}},
+      {exp_flag, optvecs{vecs{exp_input}}},
+  };
   EXPECT_EQ(parsed, expected);
 }
 
 /**
- * @brief When a flag is not in the argument vector.
+ * @brief Should be an empty value when no flag is passed.
  */
-TEST(ArgparseTest, IgnoreCase) {
-  std::vector<std::string> flags = {"--base", "--exponent", "--verbose"};
+TEST(ArgparseTest, NoFlagCase) {
+  char pow_fn[] = "pow";
+  char base_flag[] = "--base";
+  char base_input[] = "3";
+  char exp_flag[] = "--exp";
+  char exp_input[] = "2";
+  char verb_flag[] = "--verbose";
+  std::vector<std::string> flags = {base_flag, exp_flag, verb_flag};
   int argc = 5;
-  char *argv[] = {"pow", "--base", "3", "--exponent", "2"};
+  char *argv[]{pow_fn, base_flag, base_input, exp_flag, exp_input};
+
   argmap parsed = argparse(argc, argv, flags);
-  argmap expected{{"--base", {"3"}}, {"--exponent", {"2"}}, {"--verbose", {}}};
+  argmap expected{
+      {base_flag, optvecs{vecs{base_input}}},
+      {exp_flag, optvecs{vecs{exp_input}}},
+      {verb_flag, optvecs{}},
+  };
   EXPECT_EQ(parsed, expected);
+}
+
+/**
+ * @brief Should be an empty vector when no argument is passed.
+ */
+TEST(ArgparseTest, OnlyFlagCase) {
+  char pow_fn[] = "pow";
+  char base_flag[] = "--base";
+  char exp_flag[] = "--exp";
+  std::vector<std::string> flags = {base_flag, exp_flag};
+  int argc = 4;
+  char *argv[]{pow_fn, base_flag, exp_flag};
+
+  argmap parsed = argparse(argc, argv, flags);
+  argmap expected{
+      {base_flag, optvecs{vecs{}}},
+      {exp_flag, optvecs{vecs{}}},
+  };
+  EXPECT_EQ(parsed, expected);
+}
+
+/**
+ * @brief Should throw exception if a flag is duplicated.
+ */
+TEST(ArgparseTest, DuplicateFlagCase) {
+  char pow_fn[] = "pow";
+  char base_flag[] = "--base";
+  char base_input[] = "3";
+  char exp_flag[] = "--exp";
+  char exp_input[] = "2";
+  std::vector<std::string> flags = {base_flag, exp_flag};
+  int argc = 5;
+  char *argv[]{pow_fn, base_flag, base_input, base_flag, base_input};
+  EXPECT_THROW(argparse(argc, argv, flags), std::exception);
 }

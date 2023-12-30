@@ -1,5 +1,6 @@
-# ignore build directory
-build/
+# ignore build
+out/
+compile_commands.json
 
 # Prerequisites
 *.d

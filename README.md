@@ -2,12 +2,7 @@
 
 ## Build
 
-```bash
-mkdir build
-cd build
-cmake ..
-cmake --build .
-```
+Build with `cmake` using `CMakeLists.txt`.
 
 ## Usage
 
